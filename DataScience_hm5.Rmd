@@ -102,19 +102,21 @@ results_df%>%
 ### Create a tidy dataframe
 
 Method_1 using a for loop.
-```{r}
+```{r message=FALSE}
 data_raw = tibble() # Create an empty data frame
 Arm = c("exp","con")
 Id = str_pad(string = 1:10,width = 2,side = 'left',pad = '0')
 for (id in Id){
   for (arm in Arm){
     arm_id = 
-      read_csv(str_c("data/Problem_2_data/",arm,"_",id,".csv"),show_col_types = FALSE) %>%
+      read_csv(str_c("data/Problem_2_data/",arm,"_",id,".csv")) %>%
       mutate(id = id,arm = arm)%>%
       relocate(arm,id)
     data_raw = bind_rows(data_raw,arm_id)
   }
 }
+```
+```{r}
 data_tidy = 
   data_raw%>%
   janitor::clean_names()%>%
@@ -129,7 +131,7 @@ data_tidy
 ```
 
 Method_2 using purrr package
-```{r}
+```{r, message=FALSE}
 data_raw = 
   tibble(
   file_names = list.files(path = "data/Problem_2_data/")
@@ -142,6 +144,8 @@ data_raw =
     file_names = str_remove(file_names,".csv")
     )%>%
   separate(file_names,into = c("arm","id"),sep = '_')
+```
+```{r}
 data_tidy = 
   data_raw%>%
   janitor::clean_names()%>%
@@ -159,17 +163,17 @@ data_tidy
 
 ```{r}
 data_tidy%>%
-  pivot_longer(exp01:con10,
+  pivot_longer(con01:exp10,
                names_to = 'subject',
                values_to = 'data')%>%
   ggplot(aes(x = week,y = data,color = subject))+
-  geom_line(aes(color = ))
+  geom_line()
 ```
 To see the difference between control group and experiement we nee to draw a plot seperated by group. 
 
 ```{r}
 data_tidy%>%
-  pivot_longer(exp01:con10,
+  pivot_longer(con01:exp10,
                names_to = 'subject',
                values_to = 'data')%>%
   mutate(arm = substr(subject,1,3))%>%
@@ -183,13 +187,32 @@ data_tidy%>%
 
 ### Introduce data
 ```{r}
-library(tidyverse)
-
 set.seed(10)
-
 iris_with_missing = iris %>% 
   map_df(~replace(.x, sample(1:150, 20), NA)) %>%
   mutate(Species = as.character(Species))
+
+iris_with_missing = 
+  iris_with_missing%>%
+  janitor::clean_names()
+iris_with_missing
+```
+
+```{r}
+fill_missing = function(vector){
+  if(typeof(vector[1])=="double"){
+  mean = round(mean(vector,na.rm = TRUE),2)
+  vector[is.na(vector)] = mean
+  round(vector,2)
+  vector
+  }
+  else {
+    vector[is.na(vector)] = "virginica"
+    vector
+  }
+}
+iris_with_missing %>%
+  map(fill_missing)
 ```
 
 
