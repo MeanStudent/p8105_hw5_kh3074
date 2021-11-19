@@ -2,7 +2,7 @@
 title: "DataScience_hm5"
 author: "KaiYu He(kh3074)"
 date: "11/16/2021"
-output: html_document
+output: github_document
 ---
 ```{r}
 library(tidyverse)
