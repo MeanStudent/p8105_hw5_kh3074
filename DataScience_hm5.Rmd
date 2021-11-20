@@ -127,7 +127,8 @@ data_tidy =
   select(subject,week,data)%>%
   pivot_wider(names_from = subject,values_from = data)%>%
   mutate(week = as.numeric(str_remove(week,"week_")))
-data_tidy
+data_tidy%>%
+  knitr::kable()
 ```
 
 Method_2 using purrr package
@@ -156,20 +157,11 @@ data_tidy =
   select(subject,week,data)%>%
   pivot_wider(names_from = subject,values_from = data)%>%
   mutate(week = as.numeric(str_remove(week,"week_")))
-data_tidy
+data_tidy%>%
+  knitr::kable()
 ```
 
 ### Spaghetti plot
-
-```{r}
-data_tidy%>%
-  pivot_longer(con01:exp10,
-               names_to = 'subject',
-               values_to = 'data')%>%
-  ggplot(aes(x = week,y = data,color = subject))+
-  geom_line()
-```
-To see the difference between control group and experiement we nee to draw a plot seperated by group. 
 
 ```{r}
 data_tidy%>%
@@ -181,7 +173,7 @@ data_tidy%>%
   geom_line(aes(color = arm))
 ```
 
-- From the grouped line plot we can conclude that the value of experiment group is greater than contorl group.
+- From the grouped line plot we can conclude that the value of experiment group is greater than control group.
 
 # Problem 3
 
@@ -201,7 +193,7 @@ iris_with_missing
 ```{r}
 fill_missing = function(vector){
   if(typeof(vector[1])=="double"){
-  mean = round(mean(vector,na.rm = TRUE),2)
+  mean = mean(vector,na.rm = TRUE)
   vector[is.na(vector)] = mean
   round(vector,2)
   vector
@@ -211,8 +203,17 @@ fill_missing = function(vector){
     vector
   }
 }
+
+#return the df of filled data
+iris_with_missing %>%
+  map_df(fill_missing)%>%
+  head(10)%>%
+  knitr::kable()
+
+# return the vector 
 iris_with_missing %>%
   map(fill_missing)
+
 ```
 
 
